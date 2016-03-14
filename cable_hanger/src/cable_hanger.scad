@@ -5,27 +5,44 @@ w = 30;
 l = 90;
 d = 5;
 
-wire_r = 3;
+wire_r = 5;
 notch_spacing = 10;
+probe = false;
+probe_r = 3.9;
+
+back_h = 30;
+spine_w = 10;
 
 module hanger() {
     module back() {
-        difference() {
-            cube([w,w,d]);
-            
-            rotate([0,0,90])
-            union() {
-                translate([(w/2)+d,-(w/4),-d/2])
-                cylinder(d=2.54, h=d+d);
+        module mounting_hole() {
+            cylinder(d=2.54, h=d+d, center=true);
+        }
 
-                translate([(w/2)+d,-(w*0.75),-d/2])
-                cylinder(d=2.54, h=d+d);
+        module holes() {
+            hole_spacing = 11;
+            mount_w = w;
+
+            translate([0,(back_h/2)+(d/2),0])
+            union() {
+                translate([(mount_w/2)+(hole_spacing/2),0,1])
+                mounting_hole();
+
+                translate([(mount_w/2)-(hole_spacing/2),0,1])
+                mounting_hole();
             }
+        }
+
+        difference() {
+            cube([w,back_h,d]);
+            
+            //rotate([0,0,90])
+            #holes();
         }
     }
 
     module notch(wire_r) {
-        cube([w/3+1, wire_r+1, d*2]);
+        cube([(w/2)-(spine_w/2), wire_r+1, d*3], center=true);
     }
 
     module platform() {
@@ -50,6 +67,7 @@ module hanger() {
             translate([0,-w/2,d])
             barrier();
         }
+
         notches();
     }
 
@@ -59,22 +77,36 @@ module hanger() {
 
     module notches() {
         // divide up platform into maximum # of notches,
-        max_notches = (l-d)/(wire_r+notch_spacing);
+        max_notches = (l-d)/(wire_r+notch_spacing)+1;
+        notch_w = (w/2)-(spine_w/2);
+
         for(i=[0:max_notches]) {
-            union() {
+            #union() {
                 // right
-                translate([w-w*0.865,
+                translate([(w-(notch_w))/2,
                     (-l+notch_spacing)+(notch_spacing*i),
-                    0])
-                rotate([0,0,0])
+                    d/2])
                 notch(wire_r);
 
                 // left
-                translate([-w+w/2,
+                translate([-(w-(notch_w))/2,
                     (-l+notch_spacing)+(notch_spacing*i),
-                    0])
-                rotate([0,0,0])
+                    d/2])
                 notch(wire_r);
+
+                if (probe) {
+                    //right
+                    translate([(w/2)-probe_r,
+                        (-l+notch_spacing)+(notch_spacing*i)+probe_r/2,
+                        0])
+                    cylinder(r=probe_r, h=d*2);
+
+                    //left
+                    translate([-w+w/2+probe_r,
+                        (-l+notch_spacing)+(notch_spacing*i)+probe_r/2,
+                        0])
+                    cylinder(r=probe_r, h=d*2);
+                }
             }
         }
     }
