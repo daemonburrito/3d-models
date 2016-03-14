@@ -5,10 +5,10 @@ w = 30;
 l = 90;
 d = 5;
 
-wire_r = 5;
+wire_d = 5;
 notch_spacing = 10;
-probe = false;
-probe_r = 3.9;
+probe = true;
+probe_d = 3.9;
 
 back_h = 30;
 spine_w = 10;
@@ -41,8 +41,8 @@ module hanger() {
         }
     }
 
-    module notch(wire_r) {
-        cube([(w/2)-(spine_w/2), wire_r+1, d*3], center=true);
+    module notch(wire_d) {
+        cube([(w/2)-(spine_w/2), wire_d+1, d*3], center=true);
     }
 
     module platform() {
@@ -77,7 +77,7 @@ module hanger() {
 
     module notches() {
         // divide up platform into maximum # of notches,
-        max_notches = (l-d)/(wire_r+notch_spacing)+1;
+        max_notches = (l-d)/(wire_d+notch_spacing)+1;
         notch_w = (w/2)-(spine_w/2);
 
         for(i=[0:max_notches]) {
@@ -86,26 +86,26 @@ module hanger() {
                 translate([(w-(notch_w))/2,
                     (-l+notch_spacing)+(notch_spacing*i),
                     d/2])
-                notch(wire_r);
+                notch(wire_d);
 
                 // left
                 translate([-(w-(notch_w))/2,
                     (-l+notch_spacing)+(notch_spacing*i),
                     d/2])
-                notch(wire_r);
+                notch(wire_d);
 
                 if (probe) {
                     //right
-                    translate([(w/2)-probe_r,
-                        (-l+notch_spacing)+(notch_spacing*i)+probe_r/2,
+                    translate([(w/2)-probe_d,
+                        (-l+notch_spacing)+(notch_spacing*i)+probe_d/2,
                         0])
-                    cylinder(r=probe_r, h=d*2);
+                    cylinder(r=probe_d, h=d*2);
 
                     //left
-                    translate([-w+w/2+probe_r,
-                        (-l+notch_spacing)+(notch_spacing*i)+probe_r/2,
+                    translate([-w+w/2+probe_d,
+                        (-l+notch_spacing)+(notch_spacing*i)+probe_d/2,
                         0])
-                    cylinder(r=probe_r, h=d*2);
+                    cylinder(r=probe_d, h=d*2);
                 }
             }
         }
