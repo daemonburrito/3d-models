@@ -1,26 +1,49 @@
 // pigtail perpendicular hanger
 $fn=32;
 
-w = 30;
+w = 55;
 l = 90;
 d = 5;
 
 wire_d = 5;
-notch_spacing = 10;
-probe = true;
+notch_spacing = 13;
+probe = false;
 probe_d = 3.9;
 
 back_h = 30;
-spine_w = 10;
+spine_w = 8;
+
+mounting_hole_d = (5/32) * 25.4 + 0.25;
+mounting_hole_spacing = 25.4;
+
+keyhole = true;
+mounting_head_d = (11/32) * 25.4 + 0.5;
 
 module hanger() {
     module back() {
         module mounting_hole() {
-            cylinder(d=2.54, h=d+d, center=true);
+            if (!keyhole) {
+                cylinder(d=mounting_hole_d, h=d+d, center=true);
+            }
+            else {
+                translate([0,-mounting_head_d/2,0])
+                union() {
+                    cylinder(d=mounting_head_d, h=d+d,
+                        center=true);
+
+                    translate([0,mounting_head_d/2,0])
+                    cube([mounting_hole_d, back_h/3, d+d],
+                        center=true);
+
+                    translate([0,back_h/3,0])
+                    cylinder(d=mounting_hole_d, h=d*2,
+                        center=true);
+                }
+            }
         }
 
         module holes() {
-            hole_spacing = 11;
+            hole_spacing = mounting_hole_spacing;
             mount_w = w;
 
             translate([0,(back_h/2)+(d/2),0])
@@ -37,7 +60,7 @@ module hanger() {
             cube([w,back_h,d]);
             
             //rotate([0,0,90])
-            #holes();
+            holes();
         }
     }
 
@@ -68,6 +91,7 @@ module hanger() {
             barrier();
         }
 
+        translate([0,-notch_spacing/2,0])
         notches();
     }
 
@@ -81,7 +105,7 @@ module hanger() {
         notch_w = (w/2)-(spine_w/2);
 
         for(i=[0:max_notches]) {
-            #union() {
+            union() {
                 // right
                 translate([(w-(notch_w))/2,
                     (-l+notch_spacing)+(notch_spacing*i),
